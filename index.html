@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jquery.js"></script>
+    <script src="data_generator.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+  </head>
+  <body>
+      <!-- <h2>Twizzle yo biz:</h2>
+      <form>
+        Username:<br>
+        <input type = 'text' name='username' value='Username here'>
+        <br>
+        Twizzle:<br>
+         <input type ='text' name='tweet' value='Twizzle'>
+        <input type = 'submit'>
+      </form>
+       -->
+    <script>
+
+      $(document).ready(function(){
+  //body 
+        var $body = $('body').attr('class', 'body')
+        .css('background-color', '#a0e5b1');
+        $('<h1></h1>').attr('class', 'h1').css('background-color', '#6ccdf9').text('Tweezler')
+        .css('text-align', 'center')
+        .prependTo($body);
+  
+  //container for tweets that pop up on set interval
+  $divTweetFeedTableActualDiv = $('<div>').attr('class', 'actual-feed-table-div-for-styling')
+          .css('border-style', 'solid')
+          .css('border-color', 'black')
+          .css('border-width', '3px')
+          .css('border-radius', '1em')
+          .css('max-height', '650px')
+          .css('max-width', '900px')
+          .css('background-color', '#adffc5')
+          .css('overflow-y', 'scroll')
+          .css('margin', 'auto')
+          .appendTo($body);
+
+
+        var $divTweetFeedTable = $('<table>').attr('class', 'table').append($('<thead>').attr('class', 'table-head'));
+          $divTweetFeedTable.appendTo($divTweetFeedTableActualDiv);
+        // supposed to be my tweezle title but whatever $('<h2>').attr('id', 'tweezlerFeedTitle').text('Tweezlers:').prepend('.table');
+          //div for individual user posts
+         var $userPostsOnClick = $('<div>').attr('class', 'user-on-click-table-div')
+         .css('overflow-y', 'scroll')
+         .css('max-height', '200px')
+         .css('max-width', '900px')
+         .css('border-padding', '15px')
+         .css('margin', 'auto')
+         //right under the title
+         .insertAfter('.h1');
+           //putting table inside div
+         var $userPostOnClickTable = $('<table>').attr('class', 'user-posts-on-click-table');
+          //putting head inside table 
+         var $userPostsOnClickTableHead = $('<thead>').attr('class', 'user-posts-on-click-head');
+          //putting tr inside head
+           //put it all together
+           $userPostsOnClickTableHead.prependTo($userPostOnClickTable);
+           $userPostOnClickTable.prependTo($userPostsOnClick);
+               
+        
+        // $('.user-posts-on-click-head').append($('<tr>').attr('class', 'individual-user-post-on-click'));
+        //              ///
+
+            //////////////////// $userPostsOnClick.css('display', 'flex');
+    //current tweet is the first posted every time
+        var index = 0
+        //every interval of 1.5 seconts newly added tweets pop up from random generated tweets array
+        var feedRefreshIntervalFunction = setInterval(function(){
+         //index refers to point in streams.home array point of reference
+          while(index < streams.home.length - 1){
+
+            //BELOW CONTAIN TIME, USERNAME, MESSAGES AND THEIR DIVS
+          //times posted at
+         var postTimeForTweet = streams.home[index].created_at;
+         //div containing post time for tweet
+         var $postTimeDiv = $('<div>').attr('class', 'post-time-div')
+          .css('font-size', '10px')
+           .css('max-width', '85px') 
+         .text(postTimeForTweet);
+
+          //users names
+         var userNameForTweet = streams.home[index].user;
+         //div containing username
+         var $userNameDiv = $('<div>').attr('class', 'username-div').attr('class', 'hover-div').text(userNameForTweet);
+         //on hover of username div, highlights in dark gray
+         $(".hover-div").hover(function () {
+              $(this).css("background", "#CEF6EC");
+            }, function () {
+              $(this).css("background", "#91ffbf");
+            });
+
+         //users messages
+         var messageForTweet = streams.home[index].message;
+         //div containing message
+         var $messageDiv = $('<div>').attr('class', 'messageForTweet').text(' ' + messageForTweet);
+             //individual row containing tweet. needs to be formatted.
+           var $divTableRow = $('<tr>').attr('class', 'table-row').css('display', 'flex');
+              //time
+            $postTimeDiv
+            .css('padding', '3px')
+           
+            .appendTo($divTableRow);
+              //user
+            $userNameDiv
+            .css('padding', '3px')
+            //.css()
+            .appendTo($divTableRow);
+              //name
+            $messageDiv
+            .css('padding', '3px')
+            .css('color', 'blue')
+            .appendTo($divTableRow);
+
+            $divTableRow.prependTo('.table-head');
+
+             $userNameDiv.on('click', function () {
+              var $user = $(event.target).text();
+
+              $(".user-posts-on-click-head").empty();
+              //remove h2 on click as well 
+              $userPostsOnClick.children('h2').remove();
+              // console.log('I clicked on: ' + $user + '\'s name!');
+              //create a table with the div class 'user on click table div
+              
+               //place this table in the top-right of the screen, on button(in the top-right corner) click, toggles the table to hide it. make the corners
+              //nice and rounded and shit.
+            //prepend userpostsonclicktable the title
+             var $userOnClickTitle = $userPostsOnClick.prepend($('<h2>').text($user + '\'s Tweezelles:')
+             .css('text-align', 'center'));
+                //for getting the clicked on user's posts
+               _.forEach(streams.users, function (e, i, a) {
+                 if ($user === i) {
+                   _.forEach(e, function(userProps){
+                     //make a div for each time, each name, each message so i can flex the user on click table div, div
+                           var $userTrClickTable = $('<tr>').attr('class', 'individual-user-post-on-click').css('display', 'flex');
+                           //time created at
+                        $userTrClickTable.append($('<div>').attr('class', 'on-click-individual-user-time-div')
+                        .css('padding', '5px')
+                        .css('font-size', '10px')
+                          .css('max-width', '85px') 
+                          .append($('<th>').text(userProps.created_at)));
+                         //usernames
+                        $userTrClickTable.append($('<div>').attr('class', 'on-click-individual-user-name-div')
+                        .css('padding', '5px')
+                          .append($('<th>').attr('class', 'whyDoesntThisProduceText?').text($user)));
+                        //messages
+                        $userTrClickTable.append($('<div>').attr('class', 'on-click-individual-user-message-div')
+                        .css('padding', '5px')
+                          .append($('<th>').text(userProps.message)));    
+                         //put each tr holding all 3 th's into the <thead> for display
+                        $userTrClickTable.prependTo($userPostsOnClickTableHead);
+                    });
+                 }
+               });
+               //make these divs both scroll boxes
+               ////////////////1. put a pretty window around this feed, make it's div in the top right of the page with relative size restrictions
+              ////////////// put a button to close out the individual user bullshit in the top right corner of the screen. 
+              //style on these people for days boi you got it son/////////
+             
+            })
+          
+          //when everything is in place, replace postTimeDiv with this shit below
+          //$timeago is the time the string shows up in the document
+          //var $timeAgo = $('<time>').attr({class: 'timeago', datetime : new Date().toISOString()}) //place wherever you want the time to change based on when posted
+         
+          //when you click on a username div, pop up a setInterval feed of just this div's posts
+       
+        //     //get array of users that have the name of $user using every.
+        //     //which list(array) has a list of those things? streams.users\
+        //     $('.pop-up-div').empty(); //after each iteration clear the old ones. 
+          
+        //    _.forEach(streams.users, function(e, i){
+        //      if($user === i){
+        //        //so user is equal to i, now it's time to fix the undefined text
+        //        //another each loop to get through this array
+               
+        //        _.forEach(e, function(userProperties){
+        //            $('<div>')
+        //             .prependTo('.pop-up-div')
+        //             .attr('class', 'individual-user-post')
+        //             .text(userProperties.created_at + ' @' + userProperties.user + ': ' + userProperties.message); //do this all in one div TweetFeed
+        //        })
+        //      }
+        //    });
+        //  });
+        //  $(document).on('click', '.individual-user-post', function(){
+        //    $('.pop-up-div')
+        //    .empty();
+        //  })
+
+          index++;
+          }
+          //to start back over loop with new elements added to it
+          index = streams.home.length - 1;
+
+        //make a form that upon submission unshifts data into 
+
+          //console.log(streams.users);
+ //make current date = new Date()
+ //set iso string
+    // var currentDate = new Date();
+     //currentDate.toISOString;
+   //  var timeago = $timeAgo;
+ //$("time.timeago").timeago();
+          }, 1500);
+ 
+
+
+        // window.streams = {}; -> streams.home and 
+        // streams.home = []; -> array of objects containing users and messages the users with their messages
+        // streams.users = {}; -> object of arrays for each user, containing arrays of each user and their posts
+        // streams.users.shawndrost = []; -> array of objects containing user and all their messages
+        // streams.users.sharksforcheap = []; ''
+        // streams.users.mracus = []; ''
+        // streams.users.douglascalhoun = []; ''
+        // window.users = Object.keys(streams.users); -> usernames
+   
+
+// [] Display the timestamps of when the tweets were created.This timestamp should reflect the actual time the tweets were created, and should not just be hardcoded.
+// [] Design your interface so that you want to look at and use the product you’re making.
+// [] Allow the user to click on a username to see that user’s timeline.
+      });
+
+    </script>
+    
+  </body>
+</html>
